@@ -1,57 +1,71 @@
-import fs from 'fs-extra'
-import path from 'path'
-import spawn from 'cross-spawn'
-import simplegit from 'simple-git/promise'
+import fs from "fs-extra";
+import path from "path";
+import spawn from "cross-spawn";
+import simplegit from "simple-git/promise";
+
+import { green, yellow, red } from "./write-help";
 
 function isInGitRepo(path: string): boolean {
   const gitRevParse = spawn.sync(
-    'git',
-    ['rev-parse', '--is-inside-work-tree'],
+    "git",
+    ["rev-parse", "--is-inside-work-tree"],
     {
       cwd: path,
-      stdio: 'ignore',
+      stdio: "ignore",
     }
-  )
+  );
 
   if (gitRevParse.status === 0) {
-    return true
+    console.log("Found already initialized Git repository");
+    return true;
   }
-  return false
+  return false;
 }
 
 function isGitInstalled(): boolean {
-  const command = spawn.sync('git', ['--version'], {
-    stdio: 'ignore',
-  })
+  const command = spawn.sync("git", ["--version"], {
+    stdio: "ignore",
+  });
 
   if (command.error) {
-    return false
+    console.log("`git` binary not found");
+    return false;
   }
-  return true
+  return true;
 }
 
-export async function initGit(root: string): Promise<boolean> {
-  let initializedGit = false
+/**
+ * Initialize a Git repository in target destination folder
+ *
+ * @param {String} destination the destination folder path
+ */
+export async function initGit(destination: string): Promise<void> {
+  let initializedGit = false;
+
+  console.log(`\nInitializing Git repository in folder '${destination}'`);
+
+  if (!isGitInstalled() || isInGitRepo(destination)) {
+    console.log(yellow("Skipping Git initialization"));
+    return;
+  }
+
+  const git = simplegit(destination);
+
   try {
-    if (!isGitInstalled() || isInGitRepo(root)) {
-      return false
-    }
-
-    const git = simplegit(root)
-    await git.init()
-    initializedGit = true
-    await git.add('./*')
-    await git.commit('Initial commit from Create Probot App')
-    return true
-  } catch (e) {
+    await git
+      .init()
+      .then(() => (initializedGit = true))
+      .then(() => git.add("./*"))
+      .then(() => git.commit("Initial commit from Create Probot App"))
+      .then(() => console.log(green("Initialized a Git repository")));
+  } catch (error) {
     if (initializedGit) {
+      const gitFolder = path.join(destination, ".git");
+      console.log(red(`Cleaning up ${gitFolder} folder`));
       try {
-        fs.removeSync(path.join(root, '.git'))
-      } catch (err) {
-        // ignore
-      }
+        fs.removeSync(gitFolder);
+      } catch {}
     }
-
-    return false
+    console.log(red(`Errors while initializing Git repo: ${error}`));
   }
 }

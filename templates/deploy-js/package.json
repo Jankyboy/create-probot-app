@@ -5,9 +5,7 @@
   "description": "{{{ description }}}",
   "author": "{{{ author }}}",
   "license": "ISC",
-  "repository": "https://github.com/{{ owner }}/{{ repo }}.git",
   "homepage": "https://github.com/{{ owner }}/{{ repo }}",
-  "bugs": "https://github.com/{{ owner }}/{{ repo }}/issues",
   "keywords": [
     "probot",
     "github",
@@ -18,12 +16,12 @@
     "test": "jest"
   },
   "dependencies": {
-    "probot": "^10.9.3"
+    "probot": "^12.0.0"
   },
   "devDependencies": {
-    "jest": "^26.4.0",
-    "nock": "^13.0.4",
-    "smee-client": "^1.1.0"
+    "jest": "^27.0.1",
+    "nock": "^13.0.5",
+    "smee-client": "^1.2.2"
   },
   "engines": {
     "node": ">= 10.13.0"
