@@ -4,9 +4,6 @@ node_modules
 # Output folder
 bin
 
-# Temoporary folder for testing
-tmp
-
 # Logs
 *.log
 
@@ -19,3 +16,5 @@ coverage
 # Miscellaneous
 .DS_Store
 Thumbs.db
+.vscode
+__create_probot_app__*
